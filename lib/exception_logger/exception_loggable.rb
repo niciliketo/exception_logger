@@ -1,4 +1,6 @@
 require 'ipaddr'
+require 'active_support/core_ext/class/attribute'
+
 module ExceptionLogger
   # Copyright (c) 2005 Jamis Buck
   #
@@ -22,6 +24,9 @@ module ExceptionLogger
   # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   module ExceptionLoggable
     def self.included(target)
+      target.class_attribute :local_addresses
+      target.class_attribute :exception_data
+      
       target.extend(ClassMethods)
 
       #ActiveSupport::CoreExtensions::Time::Conversions::DATE_FORMATS.merge!({
@@ -30,17 +35,17 @@ module ExceptionLogger
       #    :exc_time => "%l:%M %p"
       #  })
     end
-
+  
     module ClassMethods
       def consider_local(*args)
         local_addresses.concat(args.flatten.map { |a| IPAddr.new(a) })
       end
 
       def local_addresses
-        addresses = class_attribute(:local_addresses)
+        addresses = self.local_addresses
         unless addresses
           addresses = [IPAddr.new("127.0.0.1")]
-          write_inheritable_attribute(:local_addresses, addresses)
+          self.local_addresses = addresses
         end
         addresses
       end
@@ -48,9 +53,9 @@ module ExceptionLogger
       def exception_data(deliverer = self, &block)
         deliverer = block if block
         if deliverer == self
-          class_attribute(:exception_data)
+          self.exception_data
         else
-          write_inheritable_attribute(:exception_data, deliverer)
+          self.exception_data = deliverer
         end
       end
     end
