@@ -30,14 +30,14 @@ module ExceptionLogger
       #    :exc_time => "%l:%M %p"
       #  })
     end
-  
+
     module ClassMethods
       def consider_local(*args)
         local_addresses.concat(args.flatten.map { |a| IPAddr.new(a) })
       end
 
       def local_addresses
-        addresses = read_inheritable_attribute(:local_addresses)
+        addresses = class_attribute(:local_addresses)
         unless addresses
           addresses = [IPAddr.new("127.0.0.1")]
           write_inheritable_attribute(:local_addresses, addresses)
@@ -48,7 +48,7 @@ module ExceptionLogger
       def exception_data(deliverer = self, &block)
         deliverer = block if block
         if deliverer == self
-          read_inheritable_attribute(:exception_data)
+          class_attribute(:exception_data)
         else
           write_inheritable_attribute(:exception_data, deliverer)
         end

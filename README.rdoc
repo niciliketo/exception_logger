@@ -66,6 +66,16 @@ This will be also necessary if you use a webserver ( e.g. passenger+nginx ) in f
 
 The gem is preconfigured to extend your routes automatically. You can access the logged exceptions by pointing to "/logged_exceptions" inside your application.
 
+CAUTION: This has not been tested with latest (Rails 3.2) version.
+You may need to edit the route to look like this.
+
+  resources :logged_exceptions, :controller => "logged_exceptions" do
+    collection do
+      post   :destroy_all
+      post :query
+    end
+  end
+
 You can use the rake tasks
 
   rake routes
@@ -140,7 +150,7 @@ This rake task will create a rails app inside the test directory called rails_ro
 The generator which generates the rails app in your test directory will skip over every existing file, hence if you want to customize a file, then just add/create it.
 
 == Note on Patches/Pull Requests
- 
+
 * Fork the project.
 * Make your feature addition or bug fix.
 * Add tests for it. This is important so I don't break it in a
